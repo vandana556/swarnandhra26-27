@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Call</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="video-call-container">
+        <div class="video-call-header">
+            <h1>Video Call</h1>
+            <button class="end-call">End Call</button>
+        </div>
+        <div class="video-display">
+            <video id="localVideo" autoplay muted></video>
+            <video id="remoteVideo" autoplay></video>
+        </div>
+        <div class="controls">
+            <button class="mute">Mute</button>
+            <button class="camera">Toggle Camera</button>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
+

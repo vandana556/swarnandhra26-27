@@ -1,0 +1,40 @@
+# WhatsApp Status Page
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhatsApp Status Page</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>WhatsApp Status</h1>
+    </header>
+    <main>
+        <section class="status-list">
+            <div class="status-item">
+                <img src="user1.jpg" alt="User 1" class="user-image">
+                <div class="status-info">
+                    <h2>User 1</h2>
+                    <p>Today, 10:00 AM</p>
+                </div>
+            </div>
+            <div class="status-item">
+                <img src="user2.jpg" alt="User 2" class="user-image">
+                <div class="status-info">
+                    <h2>User 2</h2>
+                    <p>Yesterday, 5:00 PM</p>
+                </div>
+            </div>
+            <!-- Add more status items as needed -->
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2023 WhatsApp Inc.</p>
+    </footer>
+    <script src="script.js"></script>
+</body>
+</html>
+
