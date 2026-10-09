@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Netflix Clone</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+ 
+    body {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      background: #141414;
+      color: #fff;
+      overflow-x: hidden;
+    }
+ 
+    /* NAVBAR */
+    .navbar {
+      position: fixed; top: 0; width: 100%; z-index: 100;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 18px 4%;
+      background: linear-gradient(to bottom, rgba(0,0,0,.8), transparent);
+      transition: background .3s;
+    }
+    .navbar.scrolled { background: #141414; }
+    .nav-left, .nav-right { display: flex; align-items: center; gap: 25px; }
+    .logo { color: #e50914; font-size: 1.8rem; letter-spacing: 2px; }
+    .nav-links { display: flex; list-style: none; gap: 18px; }
+    .nav-links li { font-size: .9rem; color: #e5e5e5; cursor: pointer; transition: color .2s; }
+    .nav-links li:hover, .nav-links li.active { color: #fff; font-weight: bold; }
+    #searchInput {
+      background: rgba(0,0,0,.6); border: 1px solid #777; color: #fff;
+      padding: 7px 12px; border-radius: 3px; outline: none;
+    }
+    .profile {
+      width: 34px; height: 34px; background: #e50914; border-radius: 4px;
+      display: flex; align-items: center; justify-content: center; cursor: pointer;
+    }
+ 
+    /* HERO */
+    .hero {
+      height: 90vh; display: flex; align-items: center; padding: 0 4%;
+      background:
+        linear-gradient(to right, rgba(0,0,0,.85) 20%, transparent 70%),
+        linear-gradient(to top, #141414 3%, transparent 40%),
+        linear-gradient(135deg, #5a0b0b, #1b1b4b 60%, #0d0d0d);
+      background-size: cover;
+    }
+    .hero-content { max-width: 520px; margin-top: 60px; }
+    .hero h2 { font-size: 3.5rem; margin-bottom: 15px; text-shadow: 2px 2px 8px #000; }
+    .hero p { font-size: 1.1rem; line-height: 1.5; margin-bottom: 22px; text-shadow: 1px 1px 4px #000; }
+    .hero-buttons { display: flex; gap: 12px; }
+    .btn {
+      padding: 10px 26px; border: none; border-radius: 4px;
+      font-size: 1.05rem; font-weight: bold; cursor: pointer; transition: opacity .2s;
+    }
+    .btn:hover { opacity: .8; }
+    .btn-play { background: #fff; color: #000; }
+    .btn-info { background: rgba(109,109,110,.7); color: #fff; }
+ 
+    /* ROWS */
+    #rows { margin-top: -90px; position: relative; z-index: 10; padding-bottom: 40px; }
+    .row { padding: 0 4%; margin-bottom: 30px; }
+    .row h3 { font-size: 1.3rem; margin-bottom: 10px; color: #e5e5e5; }
+    .row-wrap { position: relative; }
+    .row-posters {
+      display: flex; gap: 8px; overflow-x: auto; scroll-behavior: smooth;
+      padding: 20px 0; scrollbar-width: none;
+    }
+    .row-posters::-webkit-scrollbar { display: none; }
+    .poster {
+      flex: 0 0 auto; width: 210px; height: 118px; border-radius: 4px;
+      display: flex; align-items: flex-end; padding: 10px;
+      font-weight: bold; font-size: .95rem; cursor: pointer;
+      text-shadow: 1px 1px 4px #000;
+      transition: transform .3s, box-shadow .3s;
+    }
+    .poster:hover { transform: scale(1.18); z-index: 5; box-shadow: 0 8px 25px rgba(0,0,0,.8); }
+    .arrow {
+      position: absolute; top: 20px; bottom: 20px; width: 40px; z-index: 6;
+      background: rgba(20,20,20,.6); color: #fff; border: none; font-size: 2rem;
+      cursor: pointer; opacity: 0; transition: opacity .2s;
+    }
+    .row-wrap:hover .arrow { opacity: 1; }
+    .arrow.left { left: -4%; }
+    .arrow.right { right: -4%; }
+ 
+    /* MODAL */
+    .modal {
+      position: fixed; inset: 0; background: rgba(0,0,0,.75);
+      display: none; align-items: center; justify-content: center; z-index: 200;
+    }
+    .modal.open { display: flex; }
+    .modal-box {
+      width: 90%; max-width: 700px; background: #181818; border-radius: 8px;
+      overflow: hidden; position: relative; animation: pop .3s ease;
+    }
+    @keyframes pop { from { transform: scale(.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+    .close {
+      position: absolute; top: 12px; right: 16px; font-size: 2rem;
+      cursor: pointer; z-index: 2;
+    }
+    .modal-banner { height: 300px; }
+    .modal-body { padding: 24px; }
+    .modal-body h2 { margin-bottom: 8px; }
+    .meta { margin-bottom: 12px; color: #aaa; }
+    .match { color: #46d369; font-weight: bold; margin-right: 8px; }
+    .rating { border: 1px solid #aaa; padding: 0 5px; margin-left: 8px; font-size: .75rem; }
+    .modal-body p { line-height: 1.5; margin-bottom: 18px; }
+ 
+    /* FOOTER */
+    .footer { text-align: center; color: #757575; padding: 30px; font-size: .85rem; line-height: 1.8; }
+ 
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .hero h2 { font-size: 2.2rem; }
+      .poster { width: 150px; height: 90px; }
+    }
+  </style>
+</head>
+<body>
+  <!-- NAVBAR -->
+  <header class="navbar" id="navbar">
+    <div class="nav-left">
+      <h1 class="logo">NETFLIX</h1>
+      <ul class="nav-links">
+        <li class="active">Home</li>
+        <li>TV Shows</li>
+        <li>Movies</li>
+        <li>New &amp; Popular</li>
+        <li>My List</li>
+      </ul>
+    </div>
+    <div class="nav-right">
+      <input type="text" id="searchInput" placeholder="Search titles...">
+      <div class="profile">&#128100;</div>
+    </div>
+  </header>
+ 
+  <!-- HERO BANNER -->
+  <section class="hero" id="hero">
+    <div class="hero-content">
+      <h2 id="heroTitle">Stranger Nights</h2>
+      <p id="heroDesc">A group of friends uncovers a mystery that threatens their small town in this thrilling original series.</p>
+      <div class="hero-buttons">
+        <button class="btn btn-play" id="heroPlay">&#9654; Play</button>
+        <button class="btn btn-info" id="heroInfo">&#9432; More Info</button>
+      </div>
+    </div>
+  </section>
+ 
+  <!-- MOVIE ROWS (generated by the script below) -->
+  <main id="rows"></main>
+ 
+  <!-- MODAL -->
+  <div class="modal" id="modal">
+    <div class="modal-box">
+      <span class="close" id="closeModal">&times;</span>
+      <div class="modal-banner" id="modalBanner"></div>
+      <div class="modal-body">
+        <h2 id="modalTitle"></h2>
+        <p class="meta"><span class="match" id="modalMatch"></span> <span id="modalYear"></span> <span class="rating">HD</span></p>
+        <p id="modalDesc"></p>
+        <div class="hero-buttons">
+          <button class="btn btn-play">&#9654; Play</button>
+          <button class="btn btn-info" id="addListBtn">+ My List</button>
+        </div>
+      </div>
+    </div>
+  </div>
+ 
+  <footer class="footer">
+    <p>Questions? Call 000-800-919-1694</p>
+    <p>&copy; 2026 Netflix Clone &ndash; for learning purposes only</p>
+  </footer>
+ 
+  <script>
+    // ---------- DATA ----------
+    const gradients = [
+      'linear-gradient(135deg,#e50914,#4a0000)',
+      'linear-gradient(135deg,#1e3c72,#2a5298)',
+      'linear-gradient(135deg,#11998e,#38ef7d)',
+      'linear-gradient(135deg,#f12711,#f5af19)',
+      'linear-gradient(135deg,#8e2de2,#4a00e0)',
+      'linear-gradient(135deg,#232526,#414345)',
+      'linear-gradient(135deg,#ff512f,#dd2476)',
+      'linear-gradient(135deg,#00c6ff,#0072ff)'
+    ];
+ 
+    const categories = {
+      'Trending Now': ['Stranger Nights', 'The Crown Jewel', 'Dark Waters', 'Money Plan', 'Wednesday Rain', 'Squid Arena', 'Bridgeton Hall', 'Ozark Bay'],
+      'Top Rated': ['The Last Chapter', 'Breaking Dawn', 'Peaky Edge', 'Mind Hunter', 'Narcos City', 'The Witcher Tale', 'Lupin Returns', 'Dark Matter'],
+      'Action & Adventure': ['Extraction Zero', 'Red Notice 2', 'The Gray Man', 'Army of Ash', 'Triple Frontier', 'Bright Force', 'Project Power', 'Spenser Run'],
+      'Comedy': ['Laugh Factory', 'Big Mouth Club', 'The Good Place', 'Brooklyn Nine', 'Space Force', 'Dad Jokes', 'Always Sunny', 'Funny Business'],
+      'Documentaries': ['Our Planet', 'Making Murder', 'Cheer Squad', 'Tiger World', 'Abstract Art', 'Wild Wild Land', 'Last Dance', 'Ocean Deep']
+    };
+ 
+    const descriptions = [
+      'A gripping story of survival, loyalty and betrayal that will keep you on the edge of your seat.',
+      'When secrets from the past resurface, one family must decide how far they will go to protect each other.',
+      'An unforgettable journey full of twists, humor and heart across breathtaking landscapes.',
+      'Brilliant minds collide in a high-stakes game where nobody can be trusted.'
+    ];
+ 
+    let myList = [];
+ 
+    // ---------- BUILD ROWS ----------
+    const rowsContainer = document.getElementById('rows');
+ 
+    function buildRows(filter = '') {
+      rowsContainer.innerHTML = '';
+      let idx = 0;
+ 
+      Object.entries(categories).forEach(([name, titles]) => {
+        const shown = titles.filter(t => t.toLowerCase().includes(filter.toLowerCase()));
+        if (shown.length === 0) return;
+ 
+        const row = document.createElement('div');
+        row.className = 'row';
+        row.innerHTML = `
+          <h3>${name}</h3>
+          <div class="row-wrap">
+            <button class="arrow left">&#10094;</button>
+            <div class="row-posters"></div>
+            <button class="arrow right">&#10095;</button>
+          </div>`;
+ 
+        const posters = row.querySelector('.row-posters');
+        shown.forEach(title => {
+          const p = document.createElement('div');
+          p.className = 'poster';
+          p.style.background = gradients[idx % gradients.length];
+          p.textContent = title;
+          p.addEventListener('click', () => openModal(title, p.style.background, idx));
+          posters.appendChild(p);
+          idx++;
+        });
+ 
+        row.querySelector('.left').onclick = () => posters.scrollBy({ left: -600 });
+        row.querySelector('.right').onclick = () => posters.scrollBy({ left: 600 });
+ 
+        rowsContainer.appendChild(row);
+      });
+ 
+      if (!rowsContainer.children.length) {
+        rowsContainer.innerHTML = '<p style="padding:120px 4%;color:#aaa">No titles found.</p>';
+      }
+    }
+ 
+    // ---------- MODAL ----------
+    const modal = document.getElementById('modal');
+    let currentTitle = '';
+ 
+    function openModal(title, bg, i) {
+      currentTitle = title;
+      document.getElementById('modalTitle').textContent = title;
+      document.getElementById('modalBanner').style.background = bg;
+      document.getElementById('modalDesc').textContent = descriptions[i % descriptions.length];
+      document.getElementById('modalMatch').textContent = (80 + (i * 7) % 20) + '% Match';
+      document.getElementById('modalYear').textContent = 2015 + (i % 11);
+      updateListBtn();
+      modal.classList.add('open');
+    }
+ 
+    function updateListBtn() {
+      document.getElementById('addListBtn').textContent =
+        myList.includes(currentTitle) ? '\u2713 In My List' : '+ My List';
+    }
+ 
+    document.getElementById('addListBtn').addEventListener('click', () => {
+      if (myList.includes(currentTitle)) myList = myList.filter(t => t !== currentTitle);
+      else myList.push(currentTitle);
+      updateListBtn();
+    });
+ 
+    document.getElementById('closeModal').onclick = () => modal.classList.remove('open');
+    modal.addEventListener('click', e => { if (e.target === modal) modal.classList.remove('open'); });
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') modal.classList.remove('open'); });
+ 
+    // ---------- HERO ----------
+    document.getElementById('heroInfo').onclick = () =>
+      openModal('Stranger Nights', gradients[0], 0);
+    document.getElementById('heroPlay').onclick = () =>
+      alert('Now playing: Stranger Nights \u25B6');
+ 
+    // ---------- NAVBAR SCROLL ----------
+    window.addEventListener('scroll', () => {
+      document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 60);
+    });
+ 
+    // ---------- SEARCH ----------
+    document.getElementById('searchInput').addEventListener('input', e => buildRows(e.target.value));
+ 
+    // ---------- INIT ----------
+    buildRows();
+  </script>
+</body>
+</html>
+
